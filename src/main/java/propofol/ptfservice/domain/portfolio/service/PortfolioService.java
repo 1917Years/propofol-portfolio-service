@@ -82,16 +82,17 @@ public class PortfolioService {
     /**
      * 포트폴리오 가져오기 (by CreatedBy)
      */
-    public Page<Portfolio> getPortfolioInfo(Integer page, String memberId) {
-        PageRequest pageRequest = PageRequest.of(page-1, 5, Sort.by(Sort.Direction.DESC, "id"));
-        Page<Portfolio> findPortfolio = portfolioRepository.findPortfolioByCreatedBy(pageRequest, memberId);
+    public Portfolio getPortfolioInfo(String memberId) {
+        Portfolio findPortfolio = portfolioRepository.findPortfolioByCreatedBy(memberId).orElseThrow(() -> {
+            throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
+        });
 
         return findPortfolio;
     }
 
 
     /**
-     * 포트폴리오 수정
+     * 포트폴리오 수정 - 나중에 수정
      */
     @Transactional
     public String updatePortfolio(Long portfolioId, String memberId, PortfolioDto portfolioDto) {
@@ -107,10 +108,12 @@ public class PortfolioService {
         List<Career> careers = new ArrayList<>();
         List<Project> projects = new ArrayList<>();
 
-        portfolioDto.getCareers().forEach(career -> {
-            Career createdCareer = getCareer(career);
-            careers.add(createdCareer);
-        });
+        if(portfolioDto.getCareers().size() != 0) {
+            portfolioDto.getCareers().forEach(career -> {
+                Career createdCareer = getCareer(career);
+                careers.add(createdCareer);
+            });
+        }
 
         portfolioDto.getProjects().forEach(project -> {
             Project createdProject = getProject(project);

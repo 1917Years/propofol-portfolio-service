@@ -43,16 +43,13 @@ public class PortfolioController {
      * 포트폴리오 조회
      */
     @GetMapping("/myPortfolio")
-    public PortfolioResponseDto getPortfolio (@RequestParam Integer page,
-                                              @RequestHeader(name = "Authorization") String token,
+    public PortfolioResponseDto getPortfolio (@RequestHeader(name = "Authorization") String token,
                                               @Token String memberId) {
         PortfolioResponseDto responseDto = new PortfolioResponseDto();
 
         MemberInfoResponseDto memberInfo = portfolioService.getMemberInfo(token);
-        Page<Portfolio> findPortfolio = portfolioService.getPortfolioInfo(page, memberId);
+        Portfolio findPortfolio = portfolioService.getPortfolioInfo(memberId);
 
-        responseDto.setTotalCount(findPortfolio.getTotalElements());
-        responseDto.setPageCount(findPortfolio.getTotalPages());
         responseDto.setEmail(memberInfo.getEmail());
         responseDto.setUsername(memberInfo.getUsername());
         responseDto.setPhoneNumber(memberInfo.getPhoneNumber());
@@ -60,35 +57,34 @@ public class PortfolioController {
         responseDto.setDegree(memberInfo.getDegree());
         responseDto.setScore(memberInfo.getScore());
 
-        List<PortfolioDto> portfolioDtos = new ArrayList<>();
+        PortfolioDto portfolioDto = new PortfolioDto();
 
         // 하나의 포트폴리오 내부 필드
         List<CareerDto> careerDtos = new ArrayList<>();
         List<ProjectDto> projectDtos = new ArrayList<>();
         List<ArchiveDto> archiveDtos = new ArrayList<>();
 
-        findPortfolio.forEach(portfolioInfo -> {
-            PortfolioDto portDto = new PortfolioDto();
-            portfolioInfo.getCareers().forEach(career -> {
-                CareerDto careerDto = modelMapper.map(career, CareerDto.class);
-                careerDtos.add(careerDto);
-            });
-            portfolioInfo.getProjects().forEach(project -> {
-                ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
-                projectDtos.add(projectDto);
-            });
-            portfolioInfo.getArchives().forEach(archive -> {
-                ArchiveDto archiveDto = modelMapper.map(archive, ArchiveDto.class);
-                archiveDtos.add(archiveDto);
-            });
-            portDto.setTemplate(portfolioInfo.getTemplate());
-            portDto.setCareers(careerDtos);
-            portDto.setProjects(projectDtos);
-            portDto.setArchives(archiveDtos);
-            portfolioDtos.add(portDto);
+        findPortfolio.getCareers().forEach(career -> {
+            CareerDto careerDto = modelMapper.map(career, CareerDto.class);
+            careerDtos.add(careerDto);
         });
 
-        responseDto.setPortfolios(portfolioDtos);
+        findPortfolio.getProjects().forEach(project -> {
+            ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
+            projectDtos.add(projectDto);
+        });
+
+        findPortfolio.getArchives().forEach(archive -> {
+            ArchiveDto archiveDto = modelMapper.map(archive, ArchiveDto.class);
+            archiveDtos.add(archiveDto);
+        });
+
+        portfolioDto.setTemplate(findPortfolio.getTemplate());
+        portfolioDto.setCareers(careerDtos);
+        portfolioDto.setProjects(projectDtos);
+        portfolioDto.setArchives(archiveDtos);
+
+        responseDto.setPortfolioDto(portfolioDto);
 
         return responseDto;
     }
@@ -106,7 +102,7 @@ public class PortfolioController {
     }
 
     /**
-     * 포트폴리오 삭제
+     * 포트폴리오 삭제 (초기화)
      */
     @DeleteMapping("/{portfolioId}")
     public String deletePortfolio(@PathVariable(value = "portfolioId") Long portfolioId,
