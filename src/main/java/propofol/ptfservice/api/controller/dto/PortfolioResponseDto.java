@@ -19,16 +19,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class PortfolioResponseDto {
-    private Long totalCount;
-    private Integer pageCount;
-
-    private List<PortfolioDto> portfolios;
-
     private String email;
     private String username;
     private String phoneNumber;
     private LocalDate birth;
     private String degree;
     private String score;
+
+    private PortfolioDto portfolioDto;
 
 }

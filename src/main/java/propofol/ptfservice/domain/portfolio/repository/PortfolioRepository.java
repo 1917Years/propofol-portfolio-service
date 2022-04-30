@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     // createdBy를 기준으로 portfolio data 가져오기
     @Query("select p from Portfolio p where p.createdBy =:memberId")
-    Page<Portfolio> findPortfolioByCreatedBy(Pageable pageable, @Param(value = "memberId") String memberId);
+    Optional<Portfolio> findPortfolioByCreatedBy(@Param(value = "memberId") String memberId);
 
 }
