@@ -53,7 +53,6 @@ public class PortfolioController {
 
         responseDto.setTotalCount(findPortfolio.getTotalElements());
         responseDto.setPageCount(findPortfolio.getTotalPages());
-
         responseDto.setEmail(memberInfo.getEmail());
         responseDto.setUsername(memberInfo.getUsername());
         responseDto.setPhoneNumber(memberInfo.getPhoneNumber());
@@ -63,6 +62,7 @@ public class PortfolioController {
 
         List<PortfolioDto> portfolioDtos = new ArrayList<>();
 
+        // 하나의 포트폴리오 내부 필드
         List<CareerDto> careerDtos = new ArrayList<>();
         List<ProjectDto> projectDtos = new ArrayList<>();
         List<ArchiveDto> archiveDtos = new ArrayList<>();

@@ -12,9 +12,9 @@ import java.time.LocalDate;
 public class ProjectDto {
     private String title;
     @Pattern(regexp = "^[0-9]{4}-[0-9]{2}", message = "올바른 날짜 형식이 아닙니다.")
-    private String startDate;
+    private String startTerm;
     @Pattern(regexp = "^[0-9]{4}-[0-9]{2}", message = "올바른 날짜 형식이 아닙니다.")
-    private String endDate;
+    private String endTerm;
     private String basicContent;
     private String detailContent;
     @Pattern(regexp="^((http(s?))\\:\\/\\/)([0-9a-zA-Z\\-]+\\.)+[a-zA-Z]{2,6}(\\:[0-9]+)?(\\/\\S*)?$",

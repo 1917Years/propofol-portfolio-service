@@ -167,8 +167,8 @@ public class PortfolioService {
                 .projectLink(project.getProjectLink())
                 .detailContent(project.getDetailContent())
                 .skill(project.getSkill())
-                .startTerm(project.getStartDate())
-                .endTerm(project.getEndDate())
+                .startTerm(project.getStartTerm())
+                .endTerm(project.getEndTerm())
                 .build();
         return createdProject;
     }
@@ -178,8 +178,8 @@ public class PortfolioService {
                 .title(career.getTitle())
                 .basicContent(career.getBasicContent())
                 .detailContent(career.getDetailContent())
-                .startTerm(career.getStartDate())
-                .endTerm(career.getEndDate())
+                .startTerm(career.getStartTerm())
+                .endTerm(career.getEndTerm())
                 .build();
         return createdCareer;
     }
