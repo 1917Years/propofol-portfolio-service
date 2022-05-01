@@ -30,9 +30,15 @@ public class Archive {
     }
 
     @Builder(builderMethodName = "createArchive")
-
     public Archive(String link, String content) {
         this.link = link;
         this.content = content;
     }
+
+    public void updateArchive(String link, String content){
+        if(link!=null) this.link = link;
+        if(content!=null) this.content = content;
+    }
+
+
 }
