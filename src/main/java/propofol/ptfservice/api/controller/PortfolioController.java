@@ -3,16 +3,22 @@ package propofol.ptfservice.api.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import propofol.ptfservice.api.common.annotation.Token;
-import propofol.ptfservice.api.controller.dto.MemberInfoResponseDto;
-import propofol.ptfservice.api.controller.dto.PortfolioCreateRequestDto;
-import propofol.ptfservice.api.controller.dto.PortfolioResponseDto;
-import propofol.ptfservice.api.controller.dto.PortfolioUpdateRequestDto;
+import propofol.ptfservice.api.controller.dto.*;
+import propofol.ptfservice.api.controller.dto.archive.ArchiveResponseDto;
+import propofol.ptfservice.api.controller.dto.archive.ArchiveUpdateRequestDto;
+import propofol.ptfservice.api.controller.dto.career.CareerResponseDto;
+import propofol.ptfservice.api.controller.dto.career.CareerUpdateRequestDto;
+import propofol.ptfservice.api.controller.dto.project.ProjectResponseDto;
+import propofol.ptfservice.api.controller.dto.project.ProjectUpdateRequestDto;
 import propofol.ptfservice.domain.portfolio.entity.Portfolio;
+import propofol.ptfservice.domain.portfolio.entity.Template;
+import propofol.ptfservice.domain.portfolio.service.ArchiveService;
+import propofol.ptfservice.domain.portfolio.service.CareerService;
 import propofol.ptfservice.domain.portfolio.service.PortfolioService;
+import propofol.ptfservice.domain.portfolio.service.ProjectService;
 import propofol.ptfservice.domain.portfolio.service.dto.ArchiveDto;
 import propofol.ptfservice.domain.portfolio.service.dto.CareerDto;
 import propofol.ptfservice.domain.portfolio.service.dto.PortfolioDto;
@@ -27,14 +33,32 @@ import java.util.List;
 @RequestMapping("/api/v1/portfolio")
 public class PortfolioController {
     private final PortfolioService portfolioService;
+    private final ArchiveService archiveService;
+    private final CareerService careerService;
+    private final ProjectService projectService;
     private final ModelMapper modelMapper;
 
     /**
-     * 포트폴리오 생성
+     * 포트폴리오 생성 - 한 번에 정보를 받아온다고 가정
      */
     @PostMapping
     public String createPortfolio (@Validated @RequestBody PortfolioCreateRequestDto requestDto) {
-        PortfolioDto portfolioDto = modelMapper.map(requestDto, PortfolioDto.class);
+        List<ArchiveDto> archiveDtos = new ArrayList<>();
+        requestDto.getArchives().forEach(archive -> {
+            archiveDtos.add(modelMapper.map(archive, ArchiveDto.class));
+        });
+
+        List<CareerDto> careerDtos = new ArrayList<>();
+        requestDto.getCareers().forEach(career -> {
+            careerDtos.add(modelMapper.map(career, CareerDto.class));
+        });
+
+        List<ProjectDto> projectDtos = new ArrayList<>();
+        requestDto.getProjects().forEach(project -> {
+            projectDtos.add(modelMapper.map(project, ProjectDto.class));
+        });
+
+        PortfolioDto portfolioDto = new PortfolioDto(requestDto.getTemplate(), archiveDtos, careerDtos, projectDtos);
         Portfolio portfolio = portfolioService.createPortfolio(portfolioDto);
         return portfolioService.savePortfolio(portfolio);
     }
@@ -57,25 +81,25 @@ public class PortfolioController {
         responseDto.setDegree(memberInfo.getDegree());
         responseDto.setScore(memberInfo.getScore());
 
-        PortfolioDto portfolioDto = new PortfolioDto();
+        PortfolioDetailResponseDto portfolioDto = new PortfolioDetailResponseDto();
 
         // 하나의 포트폴리오 내부 필드
-        List<CareerDto> careerDtos = new ArrayList<>();
-        List<ProjectDto> projectDtos = new ArrayList<>();
-        List<ArchiveDto> archiveDtos = new ArrayList<>();
+        List<CareerResponseDto> careerDtos = new ArrayList<>();
+        List<ProjectResponseDto> projectDtos = new ArrayList<>();
+        List<ArchiveResponseDto> archiveDtos = new ArrayList<>();
 
         findPortfolio.getCareers().forEach(career -> {
-            CareerDto careerDto = modelMapper.map(career, CareerDto.class);
+            CareerResponseDto careerDto = modelMapper.map(career, CareerResponseDto.class);
             careerDtos.add(careerDto);
         });
 
         findPortfolio.getProjects().forEach(project -> {
-            ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
+            ProjectResponseDto projectDto = modelMapper.map(project, ProjectResponseDto.class);
             projectDtos.add(projectDto);
         });
 
         findPortfolio.getArchives().forEach(archive -> {
-            ArchiveDto archiveDto = modelMapper.map(archive, ArchiveDto.class);
+            ArchiveResponseDto archiveDto = modelMapper.map(archive, ArchiveResponseDto.class);
             archiveDtos.add(archiveDto);
         });
 
@@ -89,17 +113,6 @@ public class PortfolioController {
         return responseDto;
     }
 
-    /**
-     * 포트폴리오 수정
-     */
-    @PostMapping("/{portfolioId}")
-    public String updatePortfolio(@PathVariable(value = "portfolioId") Long portfolioId,
-                                  @Token String memberId,
-                                  @RequestBody PortfolioUpdateRequestDto requestDto
-                                  ) {
-        PortfolioDto portfolioDto = modelMapper.map(requestDto, PortfolioDto.class);
-        return portfolioService.updatePortfolio(portfolioId, memberId, portfolioDto);
-    }
 
     /**
      * 포트폴리오 삭제 (초기화)
@@ -108,10 +121,56 @@ public class PortfolioController {
     public String deletePortfolio(@PathVariable(value = "portfolioId") Long portfolioId,
                                   @Token String memberId) {
         return portfolioService.deletePortfolio(portfolioId, memberId);
-
     }
 
 
+    /**
+     * 포트폴리오 수정 - 템플릿 수정
+     */
+    @PostMapping("/{portfolioId}/template")
+    public String updateTemplate(@PathVariable(value = "portfolioId") Long portfolioId,
+                                 @Token String memberId,
+                                 @RequestParam Template template) {
+        return portfolioService.updateTemplate(portfolioId, memberId, template);
+    }
 
+    /**
+     * 포트폴리오 수정 - 아카이브 수정
+     */
+    @PostMapping("/{portfolioId}/archive/{archiveId}")
+    public String updatePortfolio(@PathVariable(value = "portfolioId") Long portfolioId,
+                                  @PathVariable(value = "archiveId") Long archiveId,
+                                  @Token String memberId,
+                                  @Validated @RequestBody ArchiveUpdateRequestDto requestDto) {
+
+        ArchiveDto archiveDto = modelMapper.map(requestDto, ArchiveDto.class);
+        return archiveService.updateArchive(portfolioId, archiveId, memberId, archiveDto);
+    }
+
+    /**
+     * 포트폴리오 수정 - 경력 수정
+     */
+    @PostMapping("/{portfolioId}/career/{careerId}")
+    public String updatePortfolio(@PathVariable(value = "portfolioId") Long portfolioId,
+                                  @PathVariable(value = "careerId") Long careerId,
+                                  @Token String memberId,
+                                  @Validated @RequestBody CareerUpdateRequestDto requestDto) {
+
+        CareerDto careerDto = modelMapper.map(requestDto, CareerDto.class);
+        return careerService.updateCareer(portfolioId, careerId, memberId, careerDto);
+    }
+
+    /**
+     * 포트폴리오 수정 - 프로젝트 수정
+     */
+    @PostMapping("/{portfolioId}/project/{projectId}")
+    public String updatePortfolio(@PathVariable(value = "portfolioId") Long portfolioId,
+                                  @PathVariable(value = "projectId") Long projectId,
+                                  @Token String memberId,
+                                  @Validated @RequestBody ProjectUpdateRequestDto requestDto) {
+
+        ProjectDto projectDto = modelMapper.map(requestDto, ProjectDto.class);
+        return projectService.updateProject(portfolioId, projectId, memberId, projectDto);
+    }
 
 }
