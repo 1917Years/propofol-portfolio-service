@@ -54,10 +54,8 @@ public class Portfolio extends BaseEntity {
         this.template = template;
     }
 
-    public void updatePortfolio(Template template, List<Archive> archives, List<Career> careers, List<Project> projects) {
+    public void updateTemplate (Template template) {
         this.template = template;
-        this.archives = archives;
-        this.careers = careers;
-        this.projects = projects;
     }
+
 }
