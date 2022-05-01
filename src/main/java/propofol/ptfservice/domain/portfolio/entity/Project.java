@@ -55,4 +55,14 @@ public class Project {
         this.projectLink = projectLink;
         this.skill = skill;
     }
+
+    public void updateProject(String title, String startTerm, String endTerm, String basicContent, String detailContent, String projectLink, String skill) {
+        if(title!=null) this.title = title;
+        if(startTerm!=null) this.startTerm = startTerm;
+        if(endTerm!=null) this.endTerm = endTerm;
+        if(basicContent!=null) this.basicContent = basicContent;
+        if(detailContent!=null) this.detailContent = detailContent;
+        if(projectLink!=null) this.projectLink = projectLink;
+        if(skill!=null) this.skill = skill;
+    }
 }
