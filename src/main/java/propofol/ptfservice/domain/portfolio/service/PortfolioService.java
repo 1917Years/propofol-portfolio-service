@@ -11,10 +11,7 @@ import propofol.ptfservice.api.common.exception.NotMatchMemberException;
 import propofol.ptfservice.api.controller.dto.MemberInfoResponseDto;
 import propofol.ptfservice.api.feign.UserServiceFeignClient;
 import propofol.ptfservice.domain.exception.NotFoundPortfolioException;
-import propofol.ptfservice.domain.portfolio.entity.Archive;
-import propofol.ptfservice.domain.portfolio.entity.Career;
-import propofol.ptfservice.domain.portfolio.entity.Portfolio;
-import propofol.ptfservice.domain.portfolio.entity.Project;
+import propofol.ptfservice.domain.portfolio.entity.*;
 import propofol.ptfservice.domain.portfolio.repository.ArchiveRepository;
 import propofol.ptfservice.domain.portfolio.repository.CareerRepository;
 import propofol.ptfservice.domain.portfolio.repository.PortfolioRepository;
@@ -92,45 +89,6 @@ public class PortfolioService {
 
 
     /**
-     * 포트폴리오 수정 - 나중에 수정
-     */
-    @Transactional
-    public String updatePortfolio(Long portfolioId, String memberId, PortfolioDto portfolioDto) {
-        Portfolio findPortfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> {
-            throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
-        });
-
-        // 포트폴리오 작성자가 아니라면
-        if(!findPortfolio.getCreatedBy().equals(memberId))
-            throw new NotMatchMemberException("권한이 없습니다.");
-
-        List<Archive> archives = new ArrayList<>();
-        List<Career> careers = new ArrayList<>();
-        List<Project> projects = new ArrayList<>();
-
-        if(portfolioDto.getCareers().size() != 0) {
-            portfolioDto.getCareers().forEach(career -> {
-                Career createdCareer = getCareer(career);
-                careers.add(createdCareer);
-            });
-        }
-
-        portfolioDto.getProjects().forEach(project -> {
-            Project createdProject = getProject(project);
-            projects.add(createdProject);
-        });
-
-        portfolioDto.getArchives().forEach(archive -> {
-            Archive createdArchive = getArchive(archive);
-            archives.add(createdArchive);
-        });
-
-        findPortfolio.updatePortfolio(portfolioDto.getTemplate(), archives, careers, projects);
-
-        return "ok";
-    }
-
-    /**
      * 포트폴리오 삭제
      */
     public String deletePortfolio(Long portfolioId, String memberId) {
@@ -151,11 +109,29 @@ public class PortfolioService {
         return "ok";
     }
 
+    /**
+     * 템플릿 수정
+     */
+    @Transactional
+    public String updateTemplate(Long portfolioId, String memberId, Template template) {
+        Portfolio findPortfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> {
+            throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
+        });
+
+        // 포트폴리오 작성자가 아니라면
+        if(!findPortfolio.getCreatedBy().equals(memberId))
+            throw new NotMatchMemberException("권한이 없습니다.");
+
+        findPortfolio.updateTemplate(template);
+        return "ok";
+    }
+
 
     /**
      * DTO에서 정보를 빼와서 entity 객체로 만들어주는 보조 함수들
      */
-    private Archive getArchive(ArchiveDto archive) {
+
+    public Archive getArchive(ArchiveDto archive) {
         Archive createdArchive = Archive.createArchive()
                 .content(archive.getContent())
                 .link(archive.getLink())
@@ -163,7 +139,7 @@ public class PortfolioService {
         return createdArchive;
     }
 
-    private Project getProject(ProjectDto project) {
+    public Project getProject(ProjectDto project) {
         Project createdProject = Project.createProject()
                 .title(project.getTitle())
                 .basicContent(project.getBasicContent())
@@ -176,7 +152,7 @@ public class PortfolioService {
         return createdProject;
     }
 
-    private Career getCareer(CareerDto career) {
+    public Career getCareer(CareerDto career) {
         Career createdCareer = Career.createCareer()
                 .title(career.getTitle())
                 .basicContent(career.getBasicContent())
