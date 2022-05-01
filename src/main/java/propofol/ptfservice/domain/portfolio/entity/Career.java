@@ -45,4 +45,12 @@ public class Career {
         this.basicContent = basicContent;
         this.detailContent = detailContent;
     }
+
+    public void updateCareer(String title, String startTerm, String endTerm, String basicContent, String detailContent) {
+        if(title != null) this.title = title;
+        if(startTerm != null) this.startTerm = startTerm;
+        if(endTerm != null) this.endTerm = endTerm;
+        if(basicContent != null) this.basicContent = basicContent;
+        if(detailContent != null) this.detailContent = detailContent;
+    }
 }
