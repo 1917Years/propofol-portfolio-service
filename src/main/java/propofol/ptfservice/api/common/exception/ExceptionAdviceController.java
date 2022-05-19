@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import propofol.ptfservice.api.common.exception.dto.ErrorDto;
-import propofol.ptfservice.domain.exception.NotFoundArchiveException;
+import propofol.ptfservice.domain.exception.NotFoundAwardException;
 import propofol.ptfservice.domain.exception.NotFoundCareerException;
 import propofol.ptfservice.domain.exception.NotFoundPortfolioException;
 import propofol.ptfservice.domain.exception.NotFoundProjectException;
@@ -49,7 +49,7 @@ public class ExceptionAdviceController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDto NotFoundArchiveException(NotFoundArchiveException e) {
+    public ErrorDto NotFoundArchiveException(NotFoundAwardException e) {
         ErrorDto errorDto = createError(e.getMessage(), HttpStatus.BAD_REQUEST);
         return errorDto;
     }
