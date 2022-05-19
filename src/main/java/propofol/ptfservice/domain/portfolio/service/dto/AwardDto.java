@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ArchiveDto {
-    private String link;
-    private String content;
+public class AwardDto {
+    private String name;
+    private String date;
 }
