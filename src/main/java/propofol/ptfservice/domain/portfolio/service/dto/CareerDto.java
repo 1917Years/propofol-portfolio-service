@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CareerDto {
     private String title;
+    private String content;
     private String startTerm;
     private String endTerm;
-    private String basicContent;
-    private String detailContent;
 }
