@@ -17,16 +17,14 @@ public class TokenResolver implements HandlerMethodArgumentResolver{
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(Token.class)
-                && parameter.getParameterType().isAssignableFrom(String.class);
+                && parameter.getParameterType().isAssignableFrom(Long.class);
     }
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null) throw new RuntimeException("잘못된 접근입니다.");
 
-        if(authentication == null)
-            throw new RuntimeException("잘못된 접근입니다.");
-
-        return authentication.getName();
+        return Long.valueOf(authentication.getName());
     }
 }
