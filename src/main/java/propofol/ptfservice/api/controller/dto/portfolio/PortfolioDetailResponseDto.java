@@ -1,8 +1,9 @@
-package propofol.ptfservice.api.controller.dto;
+package propofol.ptfservice.api.controller.dto.portfolio;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import propofol.ptfservice.api.controller.dto.archive.ArchiveResponseDto;
+import propofol.ptfservice.api.controller.dto.SkillResponseDto;
+import propofol.ptfservice.api.controller.dto.award.AwardResponseDto;
 import propofol.ptfservice.api.controller.dto.career.CareerResponseDto;
 import propofol.ptfservice.api.controller.dto.project.ProjectResponseDto;
 import propofol.ptfservice.domain.portfolio.entity.Template;
@@ -14,7 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 public class PortfolioDetailResponseDto {
     private Template template;
-    private List<ArchiveResponseDto> archives = new ArrayList<>();
+    private String github;
+    private String job;
+    private String content;
+
+    private List<AwardResponseDto> awards = new ArrayList<>();
     private List<CareerResponseDto> careers = new ArrayList<>();
     private List<ProjectResponseDto> projects = new ArrayList<>();
 }

@@ -1,9 +1,10 @@
-package propofol.ptfservice.api.controller.dto;
+package propofol.ptfservice.api.controller.dto.portfolio;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import propofol.ptfservice.api.controller.dto.archive.ArchiveCreateRequestDto;
+import propofol.ptfservice.api.controller.dto.SkillRequestDto;
+import propofol.ptfservice.api.controller.dto.award.AwardCreateRequestDto;
 import propofol.ptfservice.api.controller.dto.career.CareerCreateRequestDto;
 import propofol.ptfservice.api.controller.dto.project.ProjectCreateRequestDto;
 import propofol.ptfservice.domain.portfolio.entity.Template;
@@ -19,8 +20,13 @@ import java.util.List;
 public class PortfolioCreateRequestDto {
     @NotNull
     private Template template;
+
+    private String github;
+    private String job;
+    private String content;
+
     @Valid
-    private List<ArchiveCreateRequestDto> archives = new ArrayList<>();
+    private List<AwardCreateRequestDto> awards = new ArrayList<>();
     @Valid
     private List<CareerCreateRequestDto> careers = new ArrayList<>();
     @Valid

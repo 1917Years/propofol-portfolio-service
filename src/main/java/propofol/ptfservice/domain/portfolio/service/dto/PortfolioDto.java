@@ -11,13 +11,21 @@ import java.util.List;
 @NoArgsConstructor
 public class PortfolioDto {
     private Template template;
-    private List<ArchiveDto> archives = new ArrayList<>();
+    private String github;
+    private String job;
+    private String content;
+
+    private List<AwardDto> awards = new ArrayList<>();
     private List<CareerDto> careers = new ArrayList<>();
     private List<ProjectDto> projects = new ArrayList<>();
 
-    public PortfolioDto(Template template, List<ArchiveDto> archives, List<CareerDto> careers, List<ProjectDto> projects) {
+    public PortfolioDto(Template template, String github, String job, String content,
+                        List<AwardDto> awards, List<CareerDto> careers, List<ProjectDto> projects) {
         this.template = template;
-        this.archives = archives;
+        this.github = github;
+        this.job = job;
+        this.content = content;
+        this.awards = awards;
         this.careers = careers;
         this.projects = projects;
     }
