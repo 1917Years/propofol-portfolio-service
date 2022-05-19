@@ -20,37 +20,32 @@ public class Career {
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
 
-    // 경력 제목 (기관명)
+    // 경력명
     private String title;
+
+    // 경력 설명
+    private String content;
 
     // 경력 기간 - yyyy.mm 형태로 받을 예정
     private String startTerm;
     private String endTerm;
-
-    // 경력 내용 (짧은 소개)
-    private String basicContent;
-
-    // 경력 내용 (세부 내용)
-    private String detailContent;
 
     public void addPortfolio(Portfolio portfolio) {
         this.portfolio = portfolio;
     }
 
     @Builder(builderMethodName = "createCareer")
-    public Career(String title, String startTerm, String endTerm, String basicContent, String detailContent) {
+    public Career(String title, String content, String startTerm, String endTerm) {
         this.title = title;
+        this.content = content;
         this.startTerm = startTerm;
         this.endTerm = endTerm;
-        this.basicContent = basicContent;
-        this.detailContent = detailContent;
     }
 
-    public void updateCareer(String title, String startTerm, String endTerm, String basicContent, String detailContent) {
+    public void updateCareer(String title, String content, String startTerm, String endTerm) {
         if(title != null) this.title = title;
+        if(content!=null) this.content = content;
         if(startTerm != null) this.startTerm = startTerm;
         if(endTerm != null) this.endTerm = endTerm;
-        if(basicContent != null) this.basicContent = basicContent;
-        if(detailContent != null) this.detailContent = detailContent;
     }
 }

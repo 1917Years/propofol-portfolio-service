@@ -6,20 +6,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
-// 개인 블로그, 소스코드 정보 같은 아카이빙 정보 엔티티
+// 수상경력 넣는 엔티티
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Archive {
+public class Award {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="archive_id")
+    @Column(name="award_id")
     private Long id;
 
-    // 주소
-    private String link;
-    // 설명
-    private String content;
+    // 수상한 상 이름
+    private String name;
+
+    // 수상 일자
+    private String date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="portfolio_id")
@@ -29,15 +31,15 @@ public class Archive {
         this.portfolio = portfolio;
     }
 
-    @Builder(builderMethodName = "createArchive")
-    public Archive(String link, String content) {
-        this.link = link;
-        this.content = content;
+    @Builder(builderMethodName = "createAward")
+    public Award(String name, String date) {
+        this.name = name;
+        this.date = date;
     }
 
-    public void updateArchive(String link, String content){
-        if(link!=null) this.link = link;
-        if(content!=null) this.content = content;
+    public void updateAward(String name, String date){
+        if(name!=null) this.name = name;
+        if(date!=null) this.date = date;
     }
 
 
