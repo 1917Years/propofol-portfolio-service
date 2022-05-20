@@ -11,6 +11,11 @@ spring:
       name: secret
   profiles:
     active: dev
+  servlet:
+    multipart:
+      file-size-threshold: 1MB
+      max-file-size: 5MB
+      max-request-size: 50MB
 
 eureka:
   client:
@@ -19,3 +24,5 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+file:
+  projectDir: save-project-imgs
