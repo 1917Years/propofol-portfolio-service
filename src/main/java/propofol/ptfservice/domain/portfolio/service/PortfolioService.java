@@ -44,9 +44,8 @@ public class PortfolioService {
     }
 
     @Transactional
-    public String saveProject(Project project) {
-        projectRepository.save(project);
-        return "ok";
+    public Project saveProject(Project project) {
+        return projectRepository.save(project);
     }
 
 
@@ -54,9 +53,8 @@ public class PortfolioService {
      * 포트폴리오 저장 - 한번에 저장할 때
      */
     @Transactional
-    public String savePortfolio(Portfolio portfolio) {
-        portfolioRepository.save(portfolio);
-        return "ok";
+    public Portfolio savePortfolio(Portfolio portfolio) {
+        return portfolioRepository.save(portfolio);
     }
 
     /**

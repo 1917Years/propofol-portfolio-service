@@ -53,7 +53,7 @@ public class PortfolioController {
     @PostMapping("/project/image")
     @ResponseStatus(HttpStatus.OK)
     public ResponseDto saveImage(@RequestParam(value = "file") MultipartFile file,
-                                 @RequestParam(value = "boardId", required = false) Long projectId) throws IOException {
+                                 @RequestParam(value ="projectId", required = false) Long projectId) throws IOException {
         String storeImageNames = imageService.getStoreProjectImageName(file, projectId, getProjectDir());
         return new ResponseDto<>(HttpStatus.OK.value(), "success",
                 "이미지 생성 성공!", storeImageNames);
@@ -107,10 +107,14 @@ public class PortfolioController {
     @PostMapping("/{portfolioId}/project")
     @ResponseStatus(HttpStatus.OK)
     public ResponseDto createProject (@PathVariable(value = "portfolioId") Long portfolioId,
-                                      @Validated @RequestBody ProjectCreateRequestDto requestDto) {
+                                      @Validated @RequestBody ProjectCreateRequestDto requestDto,
+                                      @RequestParam(value = "projectFile") String fileName) {
         ProjectDto projectDto = modelMapper.map(requestDto, ProjectDto.class);
         Project project = portfolioService.createProject(projectDto, portfolioId);
-        portfolioService.saveProject(project);
+        Project savedProject = portfolioService.saveProject(project);
+
+        imageService.changeImageProject(fileName, savedProject);
+
         return new ResponseDto(HttpStatus.OK.value(), "success",
                 "프로젝트 정보 생성 성공", "ok");
     }
@@ -121,7 +125,8 @@ public class PortfolioController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseDto createPortfolio (@Validated @RequestBody PortfolioCreateRequestDto requestDto) {
+    public ResponseDto createPortfolio (@Validated @RequestBody PortfolioCreateRequestDto requestDto,
+                                        @RequestParam(value="projectFile", required = false) List<String> fileNames) {
         List<AwardDto> awardDtos = new ArrayList<>();
 
         requestDto.getAwards().forEach(award -> {
@@ -139,8 +144,12 @@ public class PortfolioController {
                 requestDto.getJob(), requestDto.getContent(), awardDtos, careerDtos, projectDtos);
 
         Portfolio portfolio = portfolioService.createPortfolio(portfolioDto);
-        portfolioService.savePortfolio(portfolio);
+        Portfolio savedPortfolio = portfolioService.savePortfolio(portfolio);
+        List<Project> projects = savedPortfolio.getProjects();
 
+        if(fileNames != null) {
+            imageService.changeImageProjects(fileNames, projects);
+        }
         return new ResponseDto(HttpStatus.OK.value(), "success",
                 "포트폴리오 생성 성공", "ok");
     }
@@ -165,17 +174,12 @@ public class PortfolioController {
 
         // 하나의 포트폴리오 내부 필드
         List<CareerResponseDto> careerDtos = new ArrayList<>();
-        List<ProjectResponseDto> projectDtos = new ArrayList<>();
         List<AwardResponseDto> awardDtos = new ArrayList<>();
+        List<ProjectResponseDto> projectDtos = new ArrayList<>();
 
         findPortfolio.getCareers().forEach(career -> {
             CareerResponseDto careerDto = modelMapper.map(career, CareerResponseDto.class);
             careerDtos.add(careerDto);
-        });
-
-        findPortfolio.getProjects().forEach(project -> {
-            ProjectResponseDto projectDto = modelMapper.map(project, ProjectResponseDto.class);
-            projectDtos.add(projectDto);
         });
 
         findPortfolio.getAwards().forEach(archive -> {
@@ -183,6 +187,13 @@ public class PortfolioController {
             awardDtos.add(archiveDto);
         });
 
+        findPortfolio.getProjects().forEach(project -> {
+            ProjectResponseDto projectDto = modelMapper.map(project, ProjectResponseDto.class);
+            ProjectImage findImage = imageService.findByProjectId(project.getId());
+            projectDto.setImageBytes(imageService.getImageBytes(findImage.getStoreFileName()));
+            projectDto.setImageType(imageService.getImageType(findImage));
+            projectDtos.add(projectDto);
+        });
 
         portfolioDto.setCareers(careerDtos);
         portfolioDto.setProjects(projectDtos);
@@ -255,6 +266,7 @@ public class PortfolioController {
         ProjectDto projectDto = modelMapper.map(requestDto, ProjectDto.class);
         projectService.updateProject(portfolioId, projectId, memberId, projectDto);
 
+        /**TODO 이미지 수정은 생각을 좀 해봐야 할 듯...? */
         return new ResponseDto(HttpStatus.OK.value(), "success",
                 "프로젝트 수정 성공!", "ok");
     }

@@ -18,4 +18,6 @@ public class ProjectResponseDto {
 
     private List<SkillResponseDto> projectSkills = new ArrayList<>();
 
+    private String imageBytes;
+    private String imageType;
 }

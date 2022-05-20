@@ -20,9 +20,4 @@ public class ProjectCreateRequestDto {
     private String endTerm;
 
     private List<SkillRequestDto> projectSkills = new ArrayList<>();
-    /** TODO 일단빼뒀음*/
-//    private String fileName;
-
-//    @Pattern(regexp="^((http(s?))\\:\\/\\/)([0-9a-zA-Z\\-]+\\.)+[a-zA-Z]{2,6}(\\:[0-9]+)?(\\/\\S*)?$",
-//            message = "Link 형식이 유효하지 않습니다.")
 }

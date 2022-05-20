@@ -9,6 +9,7 @@ import propofol.ptfservice.domain.exception.NotFoundPortfolioException;
 import propofol.ptfservice.domain.exception.NotFoundProjectException;
 import propofol.ptfservice.domain.portfolio.entity.Portfolio;
 import propofol.ptfservice.domain.portfolio.entity.Project;
+import propofol.ptfservice.domain.portfolio.repository.ImageRepository;
 import propofol.ptfservice.domain.portfolio.repository.PortfolioRepository;
 import propofol.ptfservice.domain.portfolio.repository.ProjectRepository;
 import propofol.ptfservice.domain.portfolio.repository.SkillRepository;
@@ -23,6 +24,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final PortfolioService portfolioService;
     private final SkillRepository skillRepository;
+    private final ImageRepository imageRepository;
 
     /**
      * 포트폴리오 수정 - 프로젝트 수정
@@ -61,6 +63,7 @@ public class ProjectService {
 
         Project findProject = getProject(projectId);
 
+        imageRepository.deleteImage(projectId);
         skillRepository.deleteBulkSkills(projectId);
         projectRepository.delete(findProject);
         return "ok";
