@@ -11,7 +11,6 @@ import propofol.ptfservice.domain.portfolio.entity.Award;
 import propofol.ptfservice.domain.portfolio.entity.Portfolio;
 import propofol.ptfservice.domain.portfolio.repository.AwardRepository;
 import propofol.ptfservice.domain.portfolio.repository.PortfolioRepository;
-import propofol.ptfservice.domain.portfolio.service.PortfolioService;
 import propofol.ptfservice.domain.portfolio.service.dto.AwardDto;
 
 @Service
