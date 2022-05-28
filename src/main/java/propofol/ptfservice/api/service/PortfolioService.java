@@ -1,18 +1,16 @@
-package propofol.ptfservice.domain.portfolio.service;
+package propofol.ptfservice.api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import propofol.ptfservice.api.common.exception.NotMatchMemberException;
-import propofol.ptfservice.api.controller.dto.MemberInfoResponseDto;
-import propofol.ptfservice.api.feign.UserServiceFeignClient;
 import propofol.ptfservice.domain.exception.NotFoundPortfolioException;
 import propofol.ptfservice.domain.portfolio.entity.*;
 import propofol.ptfservice.domain.portfolio.repository.*;
 import propofol.ptfservice.domain.portfolio.service.dto.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,16 +19,14 @@ import java.util.List;
 @Slf4j
 public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
-    private final UserServiceFeignClient userServiceFeignClient;
     private final AwardRepository awardRepository;
     private final CareerRepository careerRepository;
     private final ProjectRepository projectRepository;
-    private final ModelMapper modelMapper;
+    private final PortfolioTagService portfolioTagService;
 
     /**
      * 포트폴리오 저장 - 개별 생성
      */
-
     @Transactional
     public String saveAward(Award award) {
         awardRepository.save(award);
@@ -58,13 +54,31 @@ public class PortfolioService {
     }
 
     /**
+     * 포트폴리오 태그(스킬) 저장
+     */
+    @Transactional
+    public void saveTags(List<Long> tagIds, Portfolio savedPortfolio) {
+        if(tagIds != null) {
+            List<PortfolioTag> portfolioTags = new ArrayList<>();
+            tagIds.forEach(id -> {
+                PortfolioTag tag = PortfolioTag.createTag().tagId(id).build();
+                tag.changePortfolio(savedPortfolio);
+                portfolioTags.add(tag);
+            });
+
+            /** TODO 코드받아서 유저서비스랑 연동도 해주기!!*/
+            portfolioTagService.saveAllTags(portfolioTags);
+        }
+    }
+
+
+    /**
      * 포트폴리오 수정 - 기본 유저 정보
      */
     @Transactional
-    public String updateBasicInfo(String github, String job, String content, Long portfolioId) {
+    public void updateBasicInfo(String github, String job, String content, Long portfolioId) {
         Portfolio findPortfolio = findPortfolio(portfolioId);
         findPortfolio.updatePortfolio(github, job, content);
-        return "ok";
     }
 
     /**
@@ -104,12 +118,6 @@ public class PortfolioService {
                 .startTerm(projectDto.getStartTerm())
                 .endTerm(projectDto.getEndTerm()).build();
 
-        List<SkillDto> projectSkills = projectDto.getProjectSkills();
-
-        projectSkills.forEach(skillDto -> {
-            project.addProjectSkills(Skill.createSkill().name(skillDto.getName()).build());
-        });
-
         Portfolio portfolio = findPortfolio(portfolioId);
         project.addPortfolio(portfolio);
         return project;
@@ -135,30 +143,30 @@ public class PortfolioService {
             portfolio.addArchive(createdAward);
         });
 
+
         portfolioDto.getProjects().forEach(project -> {
             Project createdProject = getProject(project);
             portfolio.addProject(createdProject);
         });
 
+
         return portfolio;
     }
 
-    /**
-     * 유저 정보 가져오기
-     */
-    public MemberInfoResponseDto getMemberInfo(String token) {
-        return userServiceFeignClient.getMemberInfo(token);
-    }
 
     /**
      * 포트폴리오 가져오기 (by CreatedBy)
      */
     public Portfolio getPortfolioInfo(Long memberId) {
-        Portfolio findPortfolio = portfolioRepository.findPortfolioByCreatedBy(String.valueOf(memberId)).orElseThrow(() -> {
-            throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
-        });
-
+        Portfolio findPortfolio = portfolioRepository.findPortfolioByCreatedBy(String.valueOf(memberId)).orElse(null);
         return findPortfolio;
+    }
+
+    /**
+     * 포트폴리오 가져오기 (by MemberId)
+     */
+    public Portfolio getMemberPortfolio(Long memberId) {
+        return portfolioRepository.findPortfolioByMemberId(memberId).orElse(null);
     }
 
 
@@ -207,14 +215,6 @@ public class PortfolioService {
                 .endTerm(project.getEndTerm())
                 .build();
 
-        List<SkillDto> projectSkills = project.getProjectSkills();
-
-        projectSkills.forEach(skillDto -> {
-            createdProject.addProjectSkills(Skill.createSkill().name(skillDto.getName()).build());
-        });
-
-        /**TODO 이미지 수정은 우선 생각좀...ㅎㅎ;*/
-
         return createdProject;
     }
 
@@ -224,7 +224,5 @@ public class PortfolioService {
                     throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
                 });
     }
-
-
 
 }

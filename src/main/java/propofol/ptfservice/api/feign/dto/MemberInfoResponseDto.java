@@ -1,4 +1,4 @@
-package propofol.ptfservice.api.controller.dto;
+package propofol.ptfservice.api.feign.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
