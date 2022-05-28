@@ -15,5 +15,5 @@ public class ProjectDto {
     private String startTerm;
     private String endTerm;
 
-    private List<SkillDto> projectSkills = new ArrayList<>();
+    private List<Long> tagId = new ArrayList<>();
 }

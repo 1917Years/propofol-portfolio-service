@@ -9,12 +9,14 @@ import propofol.ptfservice.domain.exception.NotFoundPortfolioException;
 import propofol.ptfservice.domain.exception.NotFoundProjectException;
 import propofol.ptfservice.domain.portfolio.entity.Portfolio;
 import propofol.ptfservice.domain.portfolio.entity.Project;
+import propofol.ptfservice.domain.portfolio.entity.ProjectTag;
 import propofol.ptfservice.domain.portfolio.repository.ImageRepository;
 import propofol.ptfservice.domain.portfolio.repository.PortfolioRepository;
 import propofol.ptfservice.domain.portfolio.repository.ProjectRepository;
-import propofol.ptfservice.domain.portfolio.repository.SkillRepository;
-import propofol.ptfservice.domain.portfolio.service.PortfolioService;
 import propofol.ptfservice.domain.portfolio.service.dto.ProjectDto;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,33 +24,8 @@ import propofol.ptfservice.domain.portfolio.service.dto.ProjectDto;
 public class ProjectService {
     private final PortfolioRepository portfolioRepository;
     private final ProjectRepository projectRepository;
-    private final PortfolioService portfolioService;
-    private final SkillRepository skillRepository;
-    private final ImageRepository imageRepository;
-
-    /**
-     * 포트폴리오 수정 - 프로젝트 수정
-     */
-
-    @Transactional
-    public String updateProject(Long portfolioId, Long projectId, Long memberId, ProjectDto projectDto) {
-        Portfolio findPortfolio = getPortfolio(portfolioId);
-
-        // 포트폴리오 작성자가 아니라면
-        if(!findPortfolio.getCreatedBy().equals(String.valueOf(memberId)))
-            throw new NotMatchMemberException("권한이 없습니다.");
-
-        Project findProject = getProject(projectId);
-
-        Project createdProject = portfolioService.getProject(projectDto);
-        findProject.updateProject(createdProject.getTitle(), createdProject.getStartTerm(), createdProject.getEndTerm(),
-                createdProject.getContent(), createdProject.getJob());
-
-        createdProject.getProjectSkills().forEach(skill -> {
-            findProject.addProjectSkills(skill);
-        });
-        return "ok";
-    }
+    private final ImageService imageService;
+    private final ProjectTagService projectTagService;
 
     /**
      * 포트폴리오 삭제 - 프로젝트 정보 삭제
@@ -62,11 +39,26 @@ public class ProjectService {
             throw new NotMatchMemberException("권한이 없습니다.");
 
         Project findProject = getProject(projectId);
-
-        imageRepository.deleteImage(projectId);
-        skillRepository.deleteBulkSkills(projectId);
+        imageService.deleteAllImages(projectId);
+        projectTagService.deleteAllTags(projectId);
         projectRepository.delete(findProject);
         return "ok";
+    }
+
+    /**
+     * 프로젝트 태그 저장
+     */
+    @Transactional
+    public void saveTags(List<Long> tagIds, Project savedProject) {
+        if(tagIds != null) {
+            List<ProjectTag> projectTags = new ArrayList<>();
+            tagIds.forEach(id -> {
+                ProjectTag tag = ProjectTag.createTag().tagId(id).build();
+                tag.changeProject(savedProject);
+                projectTags.add(tag);
+            });
+            projectTagService.saveAllTags(projectTags);
+        }
     }
 
     private Portfolio getPortfolio(Long portfolioId) {
@@ -83,8 +75,5 @@ public class ProjectService {
         return findProject;
     }
 
-    /**
-     * 포트폴리오 삭제 - 프로젝트 삭제
-     */
 
 }

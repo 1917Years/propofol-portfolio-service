@@ -32,13 +32,13 @@ public class Project {
     private String job;
 
     // 사용 기술
-    @OneToMany(mappedBy = "project", cascade = CascadeType.PERSIST)
-    private List<Skill> projectSkills = new ArrayList<>();
+//    @OneToMany(mappedBy = "project", cascade = CascadeType.PERSIST)
+//    private List<Skill> projectSkills = new ArrayList<>();
 
-    // 프로젝트 이미지
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="image_id")
-    private ProjectImage projectImage;
+//    // 프로젝트 이미지
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name="image_id")
+//    private ProjectImage projectImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="portfolio_id")
@@ -48,12 +48,12 @@ public class Project {
         this.portfolio = portfolio;
     }
 
-    public void addImage(ProjectImage projectImage) {this.projectImage = projectImage;}
+//    public void addImage(ProjectImage projectImage) {this.projectImage = projectImage;}
 
-    public void addProjectSkills(Skill skill) {
-        projectSkills.add(skill);
-        skill.addProject(this);
-    }
+//    public void addProjectSkills(Skill skill) {
+//        projectSkills.add(skill);
+//        skill.addProject(this);
+//    }
 
     @Builder(builderMethodName = "createProject")
     public Project(String title, String startTerm, String endTerm, String content, String job) {
