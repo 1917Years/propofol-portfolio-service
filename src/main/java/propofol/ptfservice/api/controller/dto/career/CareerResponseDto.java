@@ -8,6 +8,7 @@ import javax.validation.constraints.Pattern;
 @Data
 @NoArgsConstructor
 public class CareerResponseDto {
+    private Long id;
     private String title;
     private String content;
     private String startTerm;
