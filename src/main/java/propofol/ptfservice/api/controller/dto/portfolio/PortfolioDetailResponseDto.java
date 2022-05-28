@@ -2,7 +2,8 @@ package propofol.ptfservice.api.controller.dto.portfolio;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import propofol.ptfservice.api.controller.dto.SkillResponseDto;
+import propofol.ptfservice.api.controller.dto.BoardResponseDto;
+import propofol.ptfservice.api.controller.dto.TagResponseDto;
 import propofol.ptfservice.api.controller.dto.award.AwardResponseDto;
 import propofol.ptfservice.api.controller.dto.career.CareerResponseDto;
 import propofol.ptfservice.api.controller.dto.project.ProjectResponseDto;
@@ -19,6 +20,8 @@ public class PortfolioDetailResponseDto {
     private String job;
     private String content;
 
+    private List<BoardResponseDto> boards = new ArrayList<>();
+    private List<TagResponseDto> skills = new ArrayList<>();
     private List<AwardResponseDto> awards = new ArrayList<>();
     private List<CareerResponseDto> careers = new ArrayList<>();
     private List<ProjectResponseDto> projects = new ArrayList<>();

@@ -15,6 +15,7 @@ public class PortfolioDto {
     private String job;
     private String content;
 
+
     private List<AwardDto> awards = new ArrayList<>();
     private List<CareerDto> careers = new ArrayList<>();
     private List<ProjectDto> projects = new ArrayList<>();

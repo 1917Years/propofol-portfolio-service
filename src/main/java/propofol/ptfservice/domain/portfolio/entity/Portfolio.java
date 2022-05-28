@@ -26,6 +26,8 @@ public class Portfolio extends BaseEntity {
     @Column(nullable = false)
     private Template template; // 포트폴리오 템플릿
 
+    private Long memberId; // 회원 id
+
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.PERSIST)
     private List<Award> awards = new ArrayList<>();
 
@@ -36,8 +38,9 @@ public class Portfolio extends BaseEntity {
     private List<Project> projects = new ArrayList<>();
 
 
-    /**TODO 스킬은 나중에 til이랑 연동해야 함. 지금은 임시로 만들어둠! */
-    /**TODO discovery-server에 ptf-service 등록해주기*/
+    public void addMemberId(Long memberId) {
+        this.memberId = memberId;
+    }
 
     public void addArchive(Award award) {
         awards.add(award);
