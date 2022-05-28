@@ -21,7 +21,8 @@ public class ProjectImage extends BaseEntity {
     private String storeFileName; // 저장 이름
     private String contentType; // 타입
 
-    @OneToOne(mappedBy = "projectImage")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
     private Project project;
 
     public void changeProject(Project project){

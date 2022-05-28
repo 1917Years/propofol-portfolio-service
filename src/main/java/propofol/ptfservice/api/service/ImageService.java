@@ -16,6 +16,7 @@ import propofol.ptfservice.domain.portfolio.repository.ImageRepository;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -59,25 +60,36 @@ public class ImageService {
     }
 
     @Transactional
-    public String getStoreProjectImageName(MultipartFile file, Long projectId, String dir) throws IOException {
+    public List<String> getStoreProjectImages(List<MultipartFile> files, Long projectId, String dir) throws IOException {
         if(projectId != null) {
-            ProjectImage findProjectImage = imageRepository.findImageByProjectId(projectId)
-                    .orElse(null);
-            String pathName = findProjectPath(dir) + "/" + findProjectImage.getStoreFileName();
-            File newFile = new File(pathName);
-
-            if(newFile.exists())
-                newFile.delete();
-
+            List<ProjectImage> projectImages = imageRepository.findAllByProjectId(projectId);
+            projectImages.forEach(image -> {
+                String pathName = findProjectPath(dir) + "/" + image.getStoreFileName();
+                File newFile = new File(pathName);
+                if(newFile.exists())
+                    newFile.delete();
+            });
             imageRepository.deleteImage(projectId);
         }
 
-        String path = "http://localhost:8000/ptf-service/api/v1/images";
-        ProjectImage savedProjectImage = saveImage(file);
-        String fileName = path + "/" + savedProjectImage.getStoreFileName();
+        if(files != null) {
+//            String path = "http://localhost:8000/ptf-service/api/v1/portfolio/images";
+            List<String> fileNames = new ArrayList<>();
+            files.forEach(file -> {
+                try {
+                    ProjectImage savedImage = saveImage(file);
+                    fileNames.add(savedImage.getStoreFileName());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
 
-        return fileName;
+            return fileNames;
+        }
+        return null;
     }
+
+
 
     @Transactional
     public void changeImageProject(String fileName, Project project) {
@@ -128,6 +140,12 @@ public class ImageService {
         if(projectImage == null) { return null; }
         return projectImage.getContentType();
     }
+
+    @Transactional
+    public void deleteAllImages(Long projectId) {
+        imageRepository.deleteImage(projectId);
+    }
+
 
     private String createFolder() {
         String path = findProjectPath(getUploadDir());
