@@ -26,8 +26,8 @@ public class AwardService {
      */
 
     @Transactional
-    public String updateAward(Long portfolioId, Long awardId, Long memberId, AwardDto awardDto) {
-        Portfolio findPortfolio = getPortfolio(portfolioId);
+    public String updateAward(Long memberId, Long awardId, AwardDto awardDto) {
+        Portfolio findPortfolio = portfolioService.getPortfolioInfo(memberId);
 
         // 포트폴리오 작성자가 아니라면
         if(!findPortfolio.getCreatedBy().equals(String.valueOf(memberId)))
@@ -44,8 +44,8 @@ public class AwardService {
      * 포트폴리오 삭제 - 수상 경력 삭제
      */
     @Transactional
-    public String deleteAward(Long portfolioId, Long awardId, Long memberId) {
-        Portfolio findPortfolio = getPortfolio(portfolioId);
+    public String deleteAward(Long memberId, Long awardId) {
+        Portfolio findPortfolio = portfolioService.getPortfolioInfo(memberId);
 
         // 포트폴리오 작성자가 아니라면
         if(!findPortfolio.getCreatedBy().equals(String.valueOf(memberId)))
@@ -56,12 +56,6 @@ public class AwardService {
         return "ok";
     }
 
-    private Portfolio getPortfolio(Long portfolioId) {
-        Portfolio findPortfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> {
-            throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
-        });
-        return findPortfolio;
-    }
 
     private Award getAward(Long awardId) {
         Award findAward = awardRepository.findById(awardId).orElseThrow(() -> {
