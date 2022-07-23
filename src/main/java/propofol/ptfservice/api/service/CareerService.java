@@ -26,8 +26,8 @@ public class CareerService {
      */
 
     @Transactional
-    public String updateCareer(Long portfolioId, Long careerId, Long memberId, CareerDto careerDto) {
-        Portfolio findPortfolio = getPortfolio(portfolioId);
+    public String updateCareer(Long memberId, Long careerId, CareerDto careerDto) {
+        Portfolio findPortfolio = portfolioService.getPortfolioInfo(memberId);
 
         // 포트폴리오 작성자가 아니라면
         if(!findPortfolio.getCreatedBy().equals(String.valueOf(memberId)))
@@ -45,8 +45,8 @@ public class CareerService {
     /**
      * 포트폴리오 삭제 - 경력 정보 삭제
      */
-    public String deleteCareer(Long portfolioId, Long careerId, Long memberId) {
-        Portfolio findPortfolio = getPortfolio(portfolioId);
+    public String deleteCareer(Long memberId, Long careerId) {
+        Portfolio findPortfolio = portfolioService.getPortfolioInfo(memberId);
 
         // 포트폴리오 작성자가 아니라면
         if(!findPortfolio.getCreatedBy().equals(String.valueOf(memberId)))
