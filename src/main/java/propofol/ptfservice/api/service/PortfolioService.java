@@ -44,15 +44,6 @@ public class PortfolioService {
         return projectRepository.save(project);
     }
 
-
-    /**
-     * 포트폴리오 저장 - 한번에 저장할 때
-     */
-    @Transactional
-    public Portfolio savePortfolio(Portfolio portfolio) {
-        return portfolioRepository.save(portfolio);
-    }
-
     /**
      * 포트폴리오 태그(스킬) 저장
      */
@@ -76,19 +67,19 @@ public class PortfolioService {
      * 포트폴리오 수정 - 기본 유저 정보
      */
     @Transactional
-    public void updateBasicInfo(String github, String job, String content, Long portfolioId) {
-        Portfolio findPortfolio = findPortfolio(portfolioId);
+    public void updateBasicInfo(String github, String job, String content, Long memberId) {
+        Portfolio findPortfolio = findPortfolio(memberId);
         findPortfolio.updatePortfolio(github, job, content);
     }
 
     /**
      * 포트폴리오 생성 - 수상 경력 정보
      */
-    public Award createAward(AwardDto awardDto, Long portfolioId) {
+    public Award createAward(AwardDto awardDto, Long memberId) {
         Award award = Award.createAward()
                 .name(awardDto.getName())
                 .date(awardDto.getDate()).build();
-        Portfolio portfolio = findPortfolio(portfolioId);
+        Portfolio portfolio = findPortfolio(memberId);
         award.addPortfolio(portfolio);
         return award;
     }
@@ -96,13 +87,13 @@ public class PortfolioService {
     /**
      * 포트폴리오 생성 - 경력 정보
      */
-    public Career createCareer(CareerDto careerDto, Long portfolioId) {
+    public Career createCareer(CareerDto careerDto, Long memberId) {
         Career career = Career.createCareer()
                 .title(careerDto.getTitle())
                 .content(careerDto.getContent())
                 .startTerm(careerDto.getStartTerm())
                 .endTerm(careerDto.getEndTerm()).build();
-        Portfolio portfolio = findPortfolio(portfolioId);
+        Portfolio portfolio = findPortfolio(memberId);
         career.addPortfolio(portfolio);
         return career;
     }
@@ -110,7 +101,7 @@ public class PortfolioService {
     /**
      * 포트폴리오 생성 - 프로젝트 정보
      */
-    public Project createProject(ProjectDto projectDto, Long portfolioId) {
+    public Project createProject(ProjectDto projectDto, Long memberId) {
         Project project = Project.createProject()
                 .title(projectDto.getTitle())
                 .content(projectDto.getContent())
@@ -118,55 +109,16 @@ public class PortfolioService {
                 .startTerm(projectDto.getStartTerm())
                 .endTerm(projectDto.getEndTerm()).build();
 
-        Portfolio portfolio = findPortfolio(portfolioId);
+        Portfolio portfolio = findPortfolio(memberId);
         project.addPortfolio(portfolio);
         return project;
     }
 
     /**
-     * 포트폴리오 생성
-     */
-    public Portfolio createPortfolio(PortfolioDto portfolioDto) {
-        Portfolio portfolio = Portfolio.createPortfolio()
-                .template(portfolioDto.getTemplate())
-                .github(portfolioDto.getGithub())
-                .job(portfolioDto.getJob())
-                .content(portfolioDto.getContent()).build();
-
-        portfolioDto.getCareers().forEach(career -> {
-            Career createdCareer = getCareer(career);
-            portfolio.addCareer(createdCareer);
-        });
-
-        portfolioDto.getAwards().forEach(award -> {
-            Award createdAward = getAward(award);
-            portfolio.addArchive(createdAward);
-        });
-
-
-        portfolioDto.getProjects().forEach(project -> {
-            Project createdProject = getProject(project);
-            portfolio.addProject(createdProject);
-        });
-
-
-        return portfolio;
-    }
-
-
-    /**
-     * 포트폴리오 가져오기 (by CreatedBy)
+     * 포트폴리오 가져오기
      */
     public Portfolio getPortfolioInfo(Long memberId) {
-        Portfolio findPortfolio = portfolioRepository.findPortfolioByCreatedBy(String.valueOf(memberId)).orElse(null);
-        return findPortfolio;
-    }
-
-    /**
-     * 포트폴리오 가져오기 (by MemberId)
-     */
-    public Portfolio getMemberPortfolio(Long memberId) {
-        return portfolioRepository.findPortfolioByMemberId(memberId).orElse(null);
+        return portfolioRepository.findPortfolioByMemberId(memberId).orElseGet(() -> createDefaultPortfolio(memberId));
     }
 
 
@@ -174,10 +126,8 @@ public class PortfolioService {
      * 템플릿 수정
      */
     @Transactional
-    public String updateTemplate(Long portfolioId, Long memberId, Template template) {
-        Portfolio findPortfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> {
-            throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
-        });
+    public String updateTemplate(Long memberId, Template template) {
+        Portfolio findPortfolio = findPortfolio(memberId);
 
         // 포트폴리오 작성자가 아니라면
         if(!findPortfolio.getCreatedBy().equals(String.valueOf(memberId)))
@@ -218,11 +168,18 @@ public class PortfolioService {
         return createdProject;
     }
 
-    private Portfolio findPortfolio(Long portfolioId) {
-        return portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> {
-                    throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
-                });
+    private Portfolio findPortfolio(Long memberId) {
+        return portfolioRepository.findPortfolioByMemberId(memberId).orElseGet(() -> createDefaultPortfolio(memberId));
+    }
+
+    private Portfolio createDefaultPortfolio(Long memberId) {
+        Portfolio newPortfolio = Portfolio.createPortfolio()
+                .template(Template.TYPE_1)
+                .build();
+        newPortfolio.addMemberId(memberId);
+
+        portfolioRepository.save(newPortfolio);
+        return newPortfolio;
     }
 
 }
