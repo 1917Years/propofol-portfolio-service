@@ -23,6 +23,7 @@ import java.util.List;
 @Slf4j
 public class ProjectService {
     private final PortfolioRepository portfolioRepository;
+    private final PortfolioService portfolioService;
     private final ProjectRepository projectRepository;
     private final ImageService imageService;
     private final ProjectTagService projectTagService;
@@ -31,8 +32,8 @@ public class ProjectService {
      * 포트폴리오 삭제 - 프로젝트 정보 삭제
      */
     @Transactional
-    public String deleteProject(Long portfolioId, Long projectId, Long memberId) {
-        Portfolio findPortfolio = getPortfolio(portfolioId);
+    public String deleteProject(Long memberId, Long projectId) {
+        Portfolio findPortfolio = portfolioService.getPortfolioInfo(memberId);
 
         // 포트폴리오 작성자가 아니라면
         if(!findPortfolio.getCreatedBy().equals(String.valueOf(memberId)))
@@ -59,13 +60,6 @@ public class ProjectService {
             });
             projectTagService.saveAllTags(projectTags);
         }
-    }
-
-    private Portfolio getPortfolio(Long portfolioId) {
-        Portfolio findPortfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> {
-            throw new NotFoundPortfolioException("포트폴리오를 찾을 수 없습니다.");
-        });
-        return findPortfolio;
     }
 
     private Project getProject(Long projectId) {
