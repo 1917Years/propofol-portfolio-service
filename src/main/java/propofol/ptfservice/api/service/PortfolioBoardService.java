@@ -38,8 +38,8 @@ public class PortfolioBoardService {
     }
 
     @Transactional
-    public void deleteAllBoards(Long portfolioId) {
-        portfolioBoardRepository.deleteAllBoards(portfolioId);
+    public void deleteAllBoards(Long memberId) {
+        portfolioBoardRepository.deleteAllBoards(memberId);
     }
 
 }
